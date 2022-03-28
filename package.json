@@ -1,0 +1,22 @@
+{
+  "name": "dd",
+  "version": "1.0.0",
+  "description": "Generate data dictionary pdf from flyway migration scripts",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm t"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kohrongying/data-dictionary-generator.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kohrongying/data-dictionary-generator/issues"
+  },
+  "homepage": "https://github.com/kohrongying/data-dictionary-generator#readme",
+  "dependencies": {
+    "pdfmake": "^0.2.4"
+  }
+}

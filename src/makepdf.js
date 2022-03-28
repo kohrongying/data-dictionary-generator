@@ -1,4 +1,6 @@
 const constants = require('./constants')
+const fs = require('fs');
+const path = require('path');
 
 const buildTable = (data) => {
     const table_name = data.TABLE_NAME;
@@ -6,7 +8,7 @@ const buildTable = (data) => {
         'S/N', 'PK', 'Column Name', 'Data Type', 'Nullable', 'Description'
     ]
     const widths = [
-        100, 100, '*', '*', 200, '*'
+        50, 50, '*', '*', 200, '*'
     ]
     const body = [HEADERS]
     data.COLUMNS.forEach((column, index) => {
@@ -31,8 +33,16 @@ const buildTable = (data) => {
     }
 }
 
+const buildTables = (folder) => {
+    let content = []
+    fs.readdirSync(folder).forEach(file => {
+        filepath = path.resolve(folder, file)
+        content.push(buildTable(require(filepath)))
+    });
+    return content
+}
 
-const buildDoc = (data) => {
+const buildDoc = (dataFolder) => {
     console.time('total')  
     const docDefinition = {
       pageSize: { // 16:9 dimension
@@ -41,7 +51,9 @@ const buildDoc = (data) => {
       },
       pageOrientation: 'landscape',
       content: [
-        buildTable(data)
+        {
+            stack: buildTables(dataFolder)
+        }
       ],
       defaultStyle: {
         fontSize: constants.DEFAULT_FONT_SIZE

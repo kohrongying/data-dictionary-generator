@@ -15,8 +15,8 @@ const {
 
 (async () => {
     try {
-        const data = require('./output/announcement.json')
-        const docDefinition = buildDoc(data)
+        const dataFolder = `${__dirname}/output`
+        const docDefinition = buildDoc(dataFolder)
         console.time('print')
         const doc = printer.createPdfKitDocument(docDefinition);
 

@@ -14,13 +14,13 @@ setup() {
 }
 
 get_tables() {
-    docker exec $POSTGRES_CONTAINER psql -t -U postgres -d postgres -f './tmp/get_tables.sql' | tail -n +3 | xargs -n 1 > $TABLES_FILE
+    docker exec $POSTGRES_CONTAINER psql -t -U postgres -d postgres -f './tmp/get_tables.sql' | xargs -n 1 > $TABLES_FILE
 }
 
 generate_columns() {
     TABLE_NAME=$1
-    QUERY="SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='public' AND TABLE_NAME='$TABLE_NAME'"
-    docker exec $POSTGRES_CONTAINER psql -t -U postgres -d postgres -c "$QUERY" | awk -F"|" '$1!=""{print "{\"column_name\": \""$1"\", \"data_type\": \""$2"\", \"primary\": \"\", \"nullable\": \""$3"\", \"description\": \"\"}"}' >> "$COLUMN_TMP_FILE"
+    sed 's/$TABLE_NAME/'"$TABLE_NAME"'/g' scripts/get_columns.template.sql > scripts/get_columns.sql
+    docker exec $POSTGRES_CONTAINER psql -t -U postgres -d postgres -f './tmp/get_columns.sql' | awk -F"|" '$1!=""{print "{\"column_name\": \""$1"\", \"data_type\": \""$2"\", \"primary\": \"\", \"nullable\": \""$3"\", \"description\": \"\"}"}' >> "$COLUMN_TMP_FILE"
 }
 
 generate_table() {

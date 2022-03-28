@@ -3,10 +3,14 @@
 set -e 
 
 setup() {
-    export POSTGRES_CONTAINER=$(docker ps -f name="db" -q)
-    export SCHEMA=public
-    export DATABASE=feedback
+    POSTGRES_CONTAINER=$(docker ps -f name="db" -q)
+    SCHEMA=public
+    DATABASE=feedback
+    OUTPUT_FOLDER=output
     TABLES_FILE=tables.log
+    COLUMN_TMP_FILE=columns.jsonl
+    rm -f "$COLUMN_TMP_FILE"
+    mkdir -p "$OUTPUT_FOLDER"
 }
 
 get_tables() {
@@ -16,20 +20,19 @@ get_tables() {
 generate_columns() {
     TABLE_NAME=$1
     QUERY="SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA='public' AND TABLE_NAME='$TABLE_NAME'"
-    docker exec $POSTGRES_CONTAINER psql -t -U postgres -d postgres -c "$QUERY" | awk -F"|" '$1!=""{print "{\"column_name\": \""$1"\", \"data_type\": \""$2"\", \"primary\": \"\", \"nullable\": \""$3"\", \"description\": \"\"}"}' >> columns.jsonl
+    docker exec $POSTGRES_CONTAINER psql -t -U postgres -d postgres -c "$QUERY" | awk -F"|" '$1!=""{print "{\"column_name\": \""$1"\", \"data_type\": \""$2"\", \"primary\": \"\", \"nullable\": \""$3"\", \"description\": \"\"}"}' >> "$COLUMN_TMP_FILE"
 }
 
 generate_table() {
-    COLUMNS=$(sed -e "$ ! s/$/,/" columns.jsonl)
+    COLUMNS=$(sed -e "$ ! s/$/,/" "$COLUMN_TMP_FILE")
 
     jq --null-input \
     --arg TABLE_NAME "$TABLE_NAME" \
     --argjson COLUMNS "[$COLUMNS]" \
-    '$ARGS.named' > output/$TABLE_NAME.json
+    '$ARGS.named' > $OUTPUT_FOLDER/$TABLE_NAME.json
 
-    rm columns.jsonl
+    rm "$COLUMN_TMP_FILE"
 }
-
 
 main() {
     setup

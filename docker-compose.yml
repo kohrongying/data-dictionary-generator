@@ -4,7 +4,7 @@ services:
     image: flyway/flyway:7.1.1
     command: -url=jdbc:postgresql://db:5432/postgres -user=postgres -password=P@ssw0rd -connectRetries=60 migrate
     volumes:
-      - /Users/rongying/Documents/rom/omj-local/omj-feedback-private-api/src/main/resources/db/migration:/flyway/sql
+      - "${MIGRATION_ABS_PATH}:/flyway/sql"
     depends_on:
       - db
 

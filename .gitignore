@@ -1,2 +1,3 @@
 output/*.json
 tables.log
+node_modules

@@ -18,8 +18,7 @@ get_tables() {
 }
 
 generate_columns() {
-    TABLE_NAME=$1
-    sed 's/$TABLE_NAME/'"$TABLE_NAME"'/g' scripts/get_columns.template.sql > scripts/get_columns.sql
+    sed 's/$TABLE_NAME/'"$TABLE_NAME"'/g;s/$SCHEMA_NAME/'"$SCHEMA_NAME"'/g'  scripts/get_columns.template.sql > scripts/get_columns.sql
     docker exec $POSTGRES_CONTAINER psql -t -U postgres -d postgres -f './tmp/get_columns.sql' | awk -F"|" '$1!=""{print "{\"column_name\": \""$1"\", \"data_type\": \""$2"\", \"primary\": \"\", \"nullable\": \""$3"\", \"description\": \"\"}"}' >> "$COLUMN_TMP_FILE"
 }
 
@@ -28,6 +27,7 @@ generate_table() {
 
     jq --null-input \
     --arg TABLE_NAME "$TABLE_NAME" \
+    --arg SCHEMA_NAME "$SCHEMA_NAME" \
     --argjson COLUMNS "[$COLUMNS]" \
     '$ARGS.named' > $OUTPUT_FOLDER/$TABLE_NAME.json
 
@@ -41,9 +41,10 @@ main() {
 
     while IFS= read -r line
     do
-        TABLE_NAME="$line"
-        generate_columns $TABLE_NAME
-        generate_table $TABLE_NAME
+        SCHEMA_NAME=$(echo "$line" | awk -F "." '{print $1}')
+        TABLE_NAME=$(echo "$line" | awk -F "." '{print $2}')
+        generate_columns
+        generate_table
         echo "$line output done"
     done < "$TABLES_FILE"
 }

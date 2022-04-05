@@ -19,7 +19,7 @@ get_tables() {
 
 generate_columns() {
     sed 's/$TABLE_NAME/'"$TABLE_NAME"'/g;s/$SCHEMA_NAME/'"$SCHEMA_NAME"'/g'  scripts/get_columns.template.sql > scripts/get_columns.sql
-    docker exec $POSTGRES_CONTAINER psql -t -U postgres -d postgres -f './tmp/get_columns.sql' | awk -F"|" '$1!=""{print "{\"column_name\": \""$1"\", \"data_type\": \""$2"\", \"primary\": \"\", \"nullable\": \""$3"\", \"description\": \"\"}"}' >> "$COLUMN_TMP_FILE"
+    docker exec $POSTGRES_CONTAINER psql -t -U postgres -d postgres -f './tmp/get_columns.sql' | awk -F"|" '$1!=""{print "{\"column_name\": \""$1"\", \"data_type\": \""$2"\", \"primary\": \"\", \"nullable\": \""$3"\", \"description\": \"\", \"identity\": \""$4"\", \"character_max_length\": \""$5"\", \"numeric_precision\": \""$6"\", \"numeric_scale\": \""$7"\", \"numeric_precision_radix\": \""$8"\" }" }' >> "$COLUMN_TMP_FILE"
 }
 
 generate_table() {

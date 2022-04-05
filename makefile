@@ -14,3 +14,6 @@ cleanup:
 	docker-compose down && rm -rf output && rm tables.log
 
 pdf: down
+
+init:
+	./init.sh

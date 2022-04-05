@@ -8,7 +8,9 @@ Generating data dictionary from scratch
 
 ### How to use
 ```
-./init.sh
+make init
+Enter absolute file path containing migration scripts: 
+ex: /Users/rongying/Documents/some-java-api/src/main/resources/db/migration
 ```
 
 # Interesting 

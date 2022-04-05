@@ -1,17 +1,17 @@
 const PdfPrinter = require('pdfmake/src/printer');
 const fonts = {
 	Roboto: {
-		normal: 'fonts/Roboto-Regular.ttf',
-		bold: 'fonts/Roboto-Medium.ttf',
-		italics: 'fonts/Roboto-Italic.ttf',
-		bolditalics: 'fonts/Roboto-MediumItalic.ttf'
+		normal: './makepdf/fonts/Roboto-Regular.ttf',
+		bold: './makepdf/fonts/Roboto-Medium.ttf',
+		italics: './makepdf/fonts/Roboto-Italic.ttf',
+		bolditalics: './makepdf/fonts/Roboto-MediumItalic.ttf'
 	}
 };
 const printer = new PdfPrinter(fonts);
 const fs = require('fs');
 const {
     buildDoc
-  } = require('./src/makepdf');
+  } = require('./makepdf/src/makepdf');
 
 (async () => {
     try {

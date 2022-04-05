@@ -2,6 +2,6 @@ output/*.json
 tables.log
 node_modules
 *.pdf
-scripts/*.sql
-!scripts/*.template.sql
-!scripts/get_tables.sql
+scripts/**/*.sql
+!scripts/psq/*.template.sql
+!scripts/psql/get_tables.sql

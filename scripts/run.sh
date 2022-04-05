@@ -4,8 +4,6 @@ set -e
 
 setup() {
     POSTGRES_CONTAINER=$(docker ps -f name="db" -q)
-    SCHEMA=public
-    DATABASE=feedback
     OUTPUT_FOLDER=output
     TABLES_FILE=tables.log
     COLUMN_TMP_FILE=columns.jsonl
@@ -14,23 +12,23 @@ setup() {
 }
 
 get_tables() {
-    docker exec $POSTGRES_CONTAINER psql -t -U postgres -d postgres -f './tmp/get_tables.sql' | xargs -n 1 > $TABLES_FILE
+    docker exec $POSTGRES_CONTAINER psql -t -U postgres -d postgres -f './tmp/psql/get_tables.sql' | xargs -n 1 > $TABLES_FILE
 }
 
 generate_columns() {
-    SCRIPT_NAME="get_columns"
+    SCRIPT_NAME="psql/get_columns"
     sed 's/$TABLE_NAME/'"$TABLE_NAME"'/g;s/$SCHEMA_NAME/'"$SCHEMA_NAME"'/g'  scripts/$SCRIPT_NAME.template.sql > scripts/$SCRIPT_NAME.sql
     docker exec $POSTGRES_CONTAINER psql -t -U postgres -d postgres -f "./tmp/$SCRIPT_NAME.sql" | awk -F"|" '$1!=""{print "{\"column_name\": \""$1"\", \"data_type\": \""$2"\", \"primary\": \"\", \"nullable\": \""$3"\", \"description\": \"\", \"identity\": \""$4"\", \"character_max_length\": \""$5"\", \"numeric_precision\": \""$6"\", \"numeric_scale\": \""$7"\", \"numeric_precision_radix\": \""$8"\" }" }' >> "$COLUMN_TMP_FILE"
 }
 
 generate_indexes() {
-    SCRIPT_NAME="get_indexes"
+    SCRIPT_NAME="psql/get_indexes"
     sed 's/$TABLE_NAME/'"$TABLE_NAME"'/g;' scripts/$SCRIPT_NAME.template.sql > scripts/$SCRIPT_NAME.sql
     docker exec $POSTGRES_CONTAINER psql -t -U postgres -d postgres -f "./tmp/$SCRIPT_NAME.sql" | xargs | tr " " ","
 }
 
 generate_pkey() {
-    SCRIPT_NAME="get_pkey"
+    SCRIPT_NAME="psql/get_pkey"
     sed 's/$TABLE_NAME/'"$TABLE_NAME"'/g;' scripts/$SCRIPT_NAME.template.sql > scripts/$SCRIPT_NAME.sql
     docker exec $POSTGRES_CONTAINER psql -t -U postgres -d postgres -f "./tmp/$SCRIPT_NAME.sql" | xargs | tr " " ","
 }

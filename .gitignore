@@ -1,3 +1,6 @@
 output/*.json
 tables.log
 node_modules
+*.pdf
+scripts/get_columns.sql
+scripts/get_indexes.sql

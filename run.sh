@@ -29,16 +29,25 @@ generate_indexes() {
     docker exec $POSTGRES_CONTAINER psql -t -U postgres -d postgres -f "./tmp/$SCRIPT_NAME.sql" | xargs | tr " " ","
 }
 
+generate_pkey() {
+    SCRIPT_NAME="get_pkey"
+    sed 's/$TABLE_NAME/'"$TABLE_NAME"'/g;' scripts/$SCRIPT_NAME.template.sql > scripts/$SCRIPT_NAME.sql
+    docker exec $POSTGRES_CONTAINER psql -t -U postgres -d postgres -f "./tmp/$SCRIPT_NAME.sql" | xargs | tr " " ","
+}
+
 generate_table() {
     # add comma to end of each line except last line (jsonl -> json)
     COLUMNS=$(sed -e "$ ! s/$/,/" "$COLUMN_TMP_FILE")
     
     INDEXES=$(generate_indexes)
 
+    PKEYS=$(generate_pkey)
+
     jq --null-input \
     --arg TABLE_NAME "$TABLE_NAME" \
     --arg SCHEMA_NAME "$SCHEMA_NAME" \
     --arg INDEXES "$INDEXES" \
+    --arg PKEYS "$PKEYS" \
     --argjson COLUMNS "[$COLUMNS]" \
     '$ARGS.named' > $OUTPUT_FOLDER/$TABLE_NAME.json
 

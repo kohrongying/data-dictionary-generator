@@ -2,5 +2,6 @@ output/*.json
 tables.log
 node_modules
 *.pdf
-scripts/get_columns.sql
-scripts/get_indexes.sql
+scripts/*.sql
+!scripts/*.template.sql
+!scripts/get_tables.sql
